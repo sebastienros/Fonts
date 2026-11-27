@@ -54,9 +54,14 @@ internal static partial class TextLayout
         int codePointIndex = 0;
         int glyphSearchBidiRunIndex = -1;
         int glyphSearchIndex = 0;
-        TextLine textLine = new();
+
+        // The line holds one entry per source code point (plus generated placeholders), so the UTF-16 length is a
+        // bound that avoids growing the list by doubling, with its copies of every entry, for nearly every line. A word
+        // segment holds at least one character and most hold several; half the length is enough for typical text, and
+        // the list still grows when a text has more segments.
+        TextLine textLine = new(text.Length);
         int stringIndex = 0;
-        List<WordSegmentRun> wordSegments = [];
+        List<WordSegmentRun> wordSegments = new((text.Length / 2) + 1);
         List<GlyphLayoutData> hyphenationMarkers = [];
         CodePoint? hyphenationMarkerCodePoint = GetHyphenationMarkerCodePoint(options);
 
